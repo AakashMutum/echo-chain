@@ -34,59 +34,55 @@ Use Cases 💡
 
 🏗 Architecture
 System Overview 🎨
-┌─────────────────────────────────────┐
-│   🖥️ Frontend (Next.js + React)     │
-│   TailwindCSS | TypeScript          │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   ⚙️ Application Layer               │
-│   Server Actions | Hooks | Utils    │
-└─────────────────────────────────────┘
-         ↓                    ↓
-┌──────────────────┐  ┌──────────────────┐
-│  🗄️ Supabase     │  │  ⛓️ Blockchain    │
-│  PostgreSQL      │  │  Solidity        │
-│  Auth            │  │  Ethereum        │
-└──────────────────┘  └──────────────────┘
+Frontend Layer: Next.js App Router, React Components, TailwindCSS with TypeScript for type safety
+Application Layer: Server Actions, Custom Hooks, and Utility functions handle business logic
+Data Layer:
+
+Supabase provides PostgreSQL database and authentication
+Ethereum blockchain stores immutable decision hashes via smart contracts
+
 Data Flow 🔄
-Decision Creation:
-User Input → Draft Storage → Generate Hash 🔐
-     ↓
-Sign with Wallet 👛 → Submit TX 📡 → Update DB ✅
-Verification:
-Fetch Decision → Compute Hash → Compare → Display Status ✅
+Decision Creation Flow:
+User creates decision → Saved as draft in Supabase → User finalizes decision → Generate SHA-256 hash → User signs with wallet → Submit transaction to blockchain → Update database with transaction hash → Confirmation displayed
+Verification Flow:
+Fetch decision from database → Compute current hash → Get on-chain hash → Compare hashes → Display verification status (Verified/Modified/Not Found)
 
 💻 Technology Stack
 LayerTechnologiesFrontend 🎨Next.js 14+, React 18+, TypeScript, TailwindCSSBackend 🗄️Supabase (PostgreSQL, Auth), Next.js API RoutesBlockchain ⛓️Solidity 0.8.x, Hardhat, Ethers.js, wagmi, RainbowKitTools 🛠️ESLint, Prettier, Git, pnpm
 
 📁 Project Structure
-echo-chain/
-├── app/                    # Next.js App Router
-│   ├── (auth)/            # Login, Sign-up
-│   └── dashboard/         # Protected routes
-│       ├── decisions/     # Decision management
-│       ├── deploy/        # Contract deployment
-│       ├── profile/       # User profile
-│       └── settings/      # Settings
-│
-├── components/
-│   ├── dashboard/         # Dashboard components
-│   ├── decisions/         # Decision components
-│   └── ui/               # Reusable UI primitives
-│
-├── contracts/
-│   └── DecisionRegistry.sol  # Main smart contract
-│
-├── lib/
-│   ├── supabase/         # Supabase clients
-│   ├── web3/             # Web3 utilities
-│   ├── actions/          # Server actions
-│   └── types.ts          # TypeScript types
-│
-├── hooks/                 # Custom React hooks
-├── scripts/              # Deployment scripts
-└── public/               # Static assets
+app/ - Next.js App Router with all pages and routes
+
+(auth)/ - Authentication pages (login, sign-up)
+dashboard/ - Protected dashboard routes
+
+decisions/ - Decision management pages
+deploy/ - Smart contract deployment UI
+profile/ - User profile management
+settings/ - User settings and preferences
+
+
+
+components/ - React components
+
+dashboard/ - Dashboard-specific components
+decisions/ - Decision-related components
+ui/ - Reusable UI primitives (buttons, forms, dialogs, etc.)
+
+contracts/ - Solidity smart contracts
+
+DecisionRegistry.sol - Main decision registry contract
+
+lib/ - Shared libraries and utilities
+
+supabase/ - Supabase client configurations
+web3/ - Web3 utilities (wallet, contract interactions, hashing)
+actions/ - Server actions for decisions and comments
+types.ts - TypeScript type definitions
+
+hooks/ - Custom React hooks (use-mobile, use-toast, etc.)
+scripts/ - Deployment and utility scripts
+public/ - Static assets (images, fonts, etc.)
 
 ✨ Core Features
 1. Authentication 🔐
@@ -96,15 +92,15 @@ Session management
 Protected routes with middleware
 
 2. Decision Management 📝
-Lifecycle:
-Draft 💾 → Review ✏️ → Finalize ✅ → Hash 🔐 → Sign 👛 → Submit 📡
-Features:
+Lifecycle Stages:
+Draft (saved locally) → Review (edit and refine) → Finalize (prepare for blockchain) → Hash (generate SHA-256) → Sign (wallet signature) → Submit (blockchain transaction) → Confirmed (immutable on-chain)
+Key Features:
 
-✍️ Rich text editor with auto-save
-📚 Immutable version history
-🔍 Diff viewer between versions
-✅ One-way finalization
-🏅 Real-time verification status
+✍️ Rich text editor with auto-save every 30 seconds
+📚 Immutable version history with complete audit trail
+🔍 Diff viewer to compare between versions
+✅ One-way finalization process (cannot be undone)
+🏅 Real-time verification status with visual indicators
 
 3. Commenting System 💬
 
