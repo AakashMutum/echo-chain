@@ -42,6 +42,15 @@ const priorityLabels: Record<Priority, string> = {
   info: "Informational",
 }
 
+// Helper function to strip HTML tags and get plain text
+function stripHtml(html: string): string {
+  // Remove HTML tags
+  const withoutTags = html.replace(/<[^>]*>/g, " ")
+  // Replace multiple spaces with single space
+  const cleaned = withoutTags.replace(/\s+/g, " ").trim()
+  return cleaned
+}
+
 export function DecisionFeed({ decisions }: DecisionFeedProps) {
   if (decisions.length === 0) {
     return (
@@ -107,8 +116,10 @@ function DecisionCard({ decision }: { decision: DecisionWithRelations }) {
         {latestVersion && (
           <div className="mb-4">
             <p className="line-clamp-2 text-sm text-muted-foreground">
-              {latestVersion.content.substring(0, 150)}
-              {latestVersion.content.length > 150 ? "..." : ""}
+              {(() => {
+                const plainText = stripHtml(latestVersion.content)
+                return plainText.substring(0, 150) + (plainText.length > 150 ? "..." : "")
+              })()}
             </p>
             {decision.is_draft && (
               <div className="mt-3 flex justify-end">
