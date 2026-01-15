@@ -102,6 +102,7 @@ export default async function DecisionPage({ params }: DecisionPageProps) {
           <CommentSection
             comments={comments || []}
             decisionId={id}
+            decisionTitle={decision.title}
             currentVersion={decision.current_version}
             userId={user?.id || ""}
           />

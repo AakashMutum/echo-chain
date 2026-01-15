@@ -20,6 +20,7 @@ import { getUserDisplayName, getUserInitials } from "@/lib/utils/user-display"
 interface CommentSectionProps {
   comments: Comment[]
   decisionId: string
+  decisionTitle: string
   currentVersion: number
   userId: string
 }
@@ -28,7 +29,7 @@ interface CommentWithAuthor extends Comment {
   author: Profile | null
 }
 
-export function CommentSection({ comments, decisionId, currentVersion, userId }: CommentSectionProps) {
+export function CommentSection({ comments, decisionId, decisionTitle, currentVersion, userId }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "version">("newest")
@@ -69,7 +70,7 @@ export function CommentSection({ comments, decisionId, currentVersion, userId }:
         decision_id: decisionId,
         user_id: userId,
         action: "added_comment",
-        details: { username: profile?.name || null },
+        details: { title: decisionTitle, username: profile?.name || null },
         wallet_address: profile?.wallet_address || null,
       })
 

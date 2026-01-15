@@ -96,7 +96,7 @@ export default async function DashboardPage() {
     .from("decisions")
     .select(`*`)
     .eq("is_draft", false)
-    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(20)
 
   // Fetch versions for each decision

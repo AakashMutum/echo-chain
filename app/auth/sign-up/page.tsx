@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
+import { checkUserExists } from "@/lib/actions/auth-check"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -39,6 +40,14 @@ export default function SignUpPage() {
     }
 
     try {
+      // Check if user already exists
+      const userExists = await checkUserExists(email)
+      if (userExists) {
+        setError("An account with this email already exists. Please sign in instead.")
+        setIsLoading(false)
+        return
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,

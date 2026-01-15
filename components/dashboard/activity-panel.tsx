@@ -75,9 +75,16 @@ function ActivityItem({ activity }: { activity: ActivityWithUser }) {
   // Prioritize username from details (captured at time of action) over current profile name
   const displayName = details?.username || getUserDisplayName(activity.user, activity.wallet_address)
 
+  // For comments, show "commented on" with the post title
+  const isComment = activity.action === "added_comment"
+  const displayActionLabel = isComment ? "commented on" : actionLabel
+
   return (
-    <div className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50">
-      <Link href={activity.user ? `/dashboard/profile/${activity.user.id}` : "#"}>
+    <Link
+      href={activity.decision_id ? `/dashboard/decisions/${activity.decision_id}` : "#"}
+      className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50"
+    >
+      <Link href={activity.user ? `/dashboard/profile/${activity.user.id}` : "#"} onClick={(e) => e.stopPropagation()}>
         <Avatar className="h-8 w-8 shrink-0 cursor-pointer">
           <AvatarImage src={activity.user?.avatar_url || undefined} />
           <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
@@ -85,17 +92,29 @@ function ActivityItem({ activity }: { activity: ActivityWithUser }) {
       </Link>
       <div className="flex-1 space-y-1">
         <p className="text-sm">
-          <Link href={activity.user ? `/dashboard/profile/${activity.user.id}` : "#"} className="font-medium hover:underline">
+          <Link
+            href={activity.user ? `/dashboard/profile/${activity.user.id}` : "#"}
+            className="font-medium hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
             {displayName}
           </Link>{" "}
-          <span className="text-muted-foreground">{actionLabel}</span>
+          <span className="text-muted-foreground">{displayActionLabel}</span>
+          {isComment && details?.title && (
+            <>
+              {" "}
+              <span className="font-medium text-primary hover:underline">
+                {details.title}
+              </span>
+            </>
+          )}
         </p>
-        {details?.title && <p className="text-xs font-medium text-primary">{details.title}</p>}
+        {!isComment && details?.title && <p className="text-xs font-medium text-primary">{details.title}</p>}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Icon className="h-3 w-3" />
           <span suppressHydrationWarning>{formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}</span>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
