@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
+import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import {
   Dialog,
   DialogContent,
@@ -250,9 +250,7 @@ export function DecisionDetail({ decision, latestVersion, userId }: DecisionDeta
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="prose prose-sm max-w-none dark:prose-invert">
-            <p className="whitespace-pre-wrap">{latestVersion.content}</p>
-          </div>
+          <RichTextEditor value={latestVersion.content} editable={false} />
         </CardContent>
       </Card>
 
@@ -341,7 +339,7 @@ export function DecisionDetail({ decision, latestVersion, userId }: DecisionDeta
 
       {/* Edit Dialog */}
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>Edit Decision</DialogTitle>
             <DialogDescription>
@@ -349,11 +347,11 @@ export function DecisionDetail({ decision, latestVersion, userId }: DecisionDeta
               preserved.
             </DialogDescription>
           </DialogHeader>
-          <Textarea
+          <RichTextEditor
             value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            className="min-h-64"
+            onChange={setEditContent}
             placeholder="Update your decision content..."
+            className="min-h-[300px]"
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditing(false)} className="bg-transparent">

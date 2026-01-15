@@ -1,5 +1,6 @@
 import { DECISION_REGISTRY_ADDRESS, isContractDeployed } from "./config"
 import { switchToShardeum } from "./wallet"
+import { DECISION_REGISTRY_BYTECODE } from "./bytecode"
 
 // Ethereum provider types
 interface TransactionReceipt {
@@ -231,5 +232,55 @@ export async function decisionExistsOnChain(decisionId: string): Promise<boolean
     return result !== "0x" + "0".repeat(64)
   } catch {
     return false
+  }
+}
+
+// Deploy the contract
+export async function deployContract(): Promise<{ txHash: string; success: boolean; address: string | null }> {
+  const provider = getProvider()
+  await switchToShardeum()
+
+  // Get current account
+  const accounts = (await provider.request({ method: "eth_accounts" })) as string[]
+  if (accounts.length === 0) {
+    throw new Error("No wallet connected")
+  }
+  const from = accounts[0]
+
+  try {
+    // Send transaction to deploy contract
+    const txHash = (await provider.request({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from,
+          data: DECISION_REGISTRY_BYTECODE.startsWith("0x")
+            ? DECISION_REGISTRY_BYTECODE
+            : "0x" + DECISION_REGISTRY_BYTECODE,
+          gas: "0x2DC6C0", // 3,000,000 gas
+        },
+      ],
+    })) as string
+
+    // Wait for transaction to be mined
+    let receipt: { contractAddress: string; status: boolean } | null = null
+    let attempts = 0
+    while (!receipt && attempts < 60) {
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      receipt = (await provider.request({
+        method: "eth_getTransactionReceipt",
+        params: [txHash],
+      })) as { contractAddress: string; status: boolean } | null
+      attempts++
+    }
+
+    return {
+      txHash,
+      success: !!receipt?.status,
+      address: receipt?.contractAddress || null,
+    }
+  } catch (error) {
+    console.error("Deployment failed:", error)
+    throw error
   }
 }

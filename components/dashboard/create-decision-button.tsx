@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Plus, Loader2 } from "lucide-react"
@@ -44,12 +44,22 @@ interface CreateDecisionButtonProps {
 
 export function CreateDecisionButton({ userId, createAction }: CreateDecisionButtonProps) {
   const [open, setOpen] = useState(false)
+  const [content, setContent] = useState("")
 
   const handleSubmit = async (formData: FormData) => {
+    // Manually set content if it's not in formData because of how rich text editor works
+    // But since we use a hidden input, it should be there.
+    // However, validation might be tricky if content is empty string but contains HTML like "<p></p>"
+    if (!content || content === "<p></p>") {
+      toast.error("Content is required")
+      return
+    }
+
     try {
       await createAction(formData)
       toast.success("Decision created successfully")
       setOpen(false)
+      setContent("")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to create decision")
     }
@@ -63,7 +73,7 @@ export function CreateDecisionButton({ userId, createAction }: CreateDecisionBut
           New Decision
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-4xl">
         <form action={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create New Decision</DialogTitle>
@@ -117,13 +127,13 @@ export function CreateDecisionButton({ userId, createAction }: CreateDecisionBut
             </div>
             <div className="grid gap-2">
               <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                name="content"
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
                 placeholder="Describe your decision in detail..."
-                className="min-h-32"
-                required
+                className="min-h-[200px]"
               />
+              <input type="hidden" name="content" value={content} />
             </div>
             <div className="flex items-center space-x-2">
               <Switch id="is_draft" name="is_draft" />

@@ -105,18 +105,8 @@ export function CommentSection({ comments, decisionId, currentVersion, userId }:
         </Select>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-4 p-4">
-          {sortedComments.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No comments yet. Be the first to comment!</p>
-          ) : (
-            sortedComments.map((comment) => <CommentItem key={comment.id} comment={comment} />)
-          )}
-        </div>
-      </ScrollArea>
-
       {/* Add Comment Form */}
-      <form onSubmit={handleSubmit} className="border-t p-4">
+      <form onSubmit={handleSubmit} className="border-b p-4">
         <div className="space-y-3">
           <Textarea
             value={newComment}
@@ -139,6 +129,16 @@ export function CommentSection({ comments, decisionId, currentVersion, userId }:
           </Button>
         </div>
       </form>
+
+      <ScrollArea className="flex-1">
+        <div className="space-y-4 p-4">
+          {sortedComments.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No comments yet. Be the first to comment!</p>
+          ) : (
+            sortedComments.map((comment) => <CommentItem key={comment.id} comment={comment} />)
+          )}
+        </div>
+      </ScrollArea>
     </div>
   )
 }

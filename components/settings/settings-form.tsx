@@ -26,7 +26,8 @@ import { connectWallet, switchToShardeum } from "@/lib/web3/wallet"
 import { SHARDEUM_TESTNET } from "@/lib/web3/config"
 import { toast } from "sonner"
 import { WalletIcon, BlockchainIcon } from "@/components/icons"
-import { Loader2, ExternalLink, Shield, Bell, Moon, Globe, Palette } from "lucide-react"
+/* Update imports */
+import { Loader2, ExternalLink, Shield, Bell, Moon, Globe, Palette, Languages, Mail, Zap, Minimize2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface SettingsFormProps {
@@ -39,11 +40,53 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
   const [walletAddress, setWalletAddress] = useState(profile?.wallet_address || null)
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+
+  // General Settings State
+  const [language, setLanguage] = useState("en")
+  const [reduceMotion, setReduceMotion] = useState(false)
+  const [marketingEmails, setMarketingEmails] = useState(false)
+  const [compactView, setCompactView] = useState(false)
+
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
+    // Load settings from localStorage
+    const savedLanguage = localStorage.getItem("echo-settings-language")
+    const savedReduceMotion = localStorage.getItem("echo-settings-reduceMotion")
+    const savedMarketingEmails = localStorage.getItem("echo-settings-marketingEmails")
+    const savedCompactView = localStorage.getItem("echo-settings-compactView")
+
+    if (savedLanguage) setLanguage(savedLanguage)
+    if (savedReduceMotion) setReduceMotion(savedReduceMotion === "true")
+    if (savedMarketingEmails) setMarketingEmails(savedMarketingEmails === "true")
+    if (savedCompactView) setCompactView(savedCompactView === "true")
   }, [])
+
+  // Settings handlers
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value)
+    localStorage.setItem("echo-settings-language", value)
+    toast.success("Language updated")
+  }
+
+  const handleReduceMotionChange = (checked: boolean) => {
+    setReduceMotion(checked)
+    localStorage.setItem("echo-settings-reduceMotion", String(checked))
+  }
+
+  const handleMarketingEmailsChange = (checked: boolean) => {
+    setMarketingEmails(checked)
+    localStorage.setItem("echo-settings-marketingEmails", String(checked))
+    if (checked) toast.success("Subscribed to marketing emails")
+    else toast.success("Unsubscribed from marketing emails")
+  }
+
+  const handleCompactViewChange = (checked: boolean) => {
+    setCompactView(checked)
+    localStorage.setItem("echo-settings-compactView", String(checked))
+    toast.success(`Compact view ${checked ? "enabled" : "disabled"}`)
+  }
 
   const handleConnectWallet = async () => {
     setIsConnecting(true)
@@ -82,6 +125,59 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* General Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>General</CardTitle>
+          <CardDescription>Configure general application settings</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Languages className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <Label htmlFor="language">Language</Label>
+                <p className="text-xs text-muted-foreground">Select your preferred language</p>
+              </div>
+            </div>
+            <Select value={language} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="es">Español</SelectItem>
+                <SelectItem value="fr">Français</SelectItem>
+                <SelectItem value="de">Deutsch</SelectItem>
+                <SelectItem value="zh">中文</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Zap className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <Label htmlFor="reduce-motion">Reduce Motion</Label>
+                <p className="text-xs text-muted-foreground">Minimize animation effects</p>
+              </div>
+            </div>
+            <Switch id="reduce-motion" checked={reduceMotion} onCheckedChange={handleReduceMotionChange} />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Minimize2 className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <Label htmlFor="compact-view">Compact View</Label>
+                <p className="text-xs text-muted-foreground">Display more content on screen</p>
+              </div>
+            </div>
+            <Switch id="compact-view" checked={compactView} onCheckedChange={handleCompactViewChange} />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Wallet Settings */}
       <Card>
         <CardHeader>
@@ -235,6 +331,17 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
           <Separator />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <Mail className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <Label htmlFor="marketing-emails">Marketing emails</Label>
+                <p className="text-xs text-muted-foreground">Receive news and promotional updates</p>
+              </div>
+            </div>
+            <Switch id="marketing-emails" checked={marketingEmails} onCheckedChange={handleMarketingEmailsChange} />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <Palette className="h-5 w-5 text-muted-foreground" />
               <div>
                 <Label htmlFor="theme">Theme</Label>
@@ -255,6 +362,10 @@ export function SettingsForm({ user, profile }: SettingsFormProps) {
                   <SelectItem value="theme-nature">Nature</SelectItem>
                   <SelectItem value="theme-sky">Sky</SelectItem>
                   <SelectItem value="theme-midnight">Midnight</SelectItem>
+                  <SelectItem value="theme-sunset">Sunset</SelectItem>
+                  <SelectItem value="theme-ocean">Ocean</SelectItem>
+                  <SelectItem value="theme-neon">Neon</SelectItem>
+                  <SelectItem value="theme-golden">Golden</SelectItem>
                 </SelectContent>
               </Select>
             )}

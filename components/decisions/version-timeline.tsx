@@ -6,6 +6,7 @@ import type { DecisionVersion, Profile } from "@/lib/types"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { RichTextEditor } from "@/components/ui/rich-text-editor"
 import { VerifiedIcon } from "@/components/icons"
 import { formatDistanceToNow, format } from "date-fns"
 import { Check, GitBranch } from "lucide-react"
@@ -87,7 +88,7 @@ export function VersionTimeline({ versions }: VersionTimelineProps) {
                         <span className="hover:underline">{version.editor?.name || "Unknown"}</span>
                       </Link>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground" suppressHydrationWarning>
                       {formatDistanceToNow(new Date(version.created_at), { addSuffix: true })}
                     </p>
                   </div>
@@ -109,8 +110,8 @@ export function VersionTimeline({ versions }: VersionTimelineProps) {
           </DialogHeader>
           {selectedVersion && (
             <div className="space-y-4">
-              <div className="rounded-lg bg-muted p-4">
-                <p className="whitespace-pre-wrap text-sm">{selectedVersion.content}</p>
+              <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <RichTextEditor value={selectedVersion.content} editable={false} />
               </div>
               <div className="grid gap-2 text-sm">
                 <div className="flex justify-between">
